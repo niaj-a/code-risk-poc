@@ -23,3 +23,15 @@ htmlcov/
 .ruff_cache/
 
 # IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs / local data
+*.log
+data/
