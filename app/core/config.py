@@ -31,3 +31,20 @@ class Settings(BaseSettings):
     openai_model: str = Field(default="gpt-4.1-mini", alias="OPENAI_MODEL")
     azure_openai_api_key: str = Field(default="", alias="AZURE_OPENAI_API_KEY")
     azure_openai_endpoint: str = Field(default="", alias="AZURE_OPENAI_ENDPOINT")
+    azure_openai_api_version: str = Field(
+        default="2024-10-21",
+        alias="AZURE_OPENAI_API_VERSION",
+    )
+    azure_openai_deployment: str = Field(default="", alias="AZURE_OPENAI_DEPLOYMENT")
+    max_diff_chars: int = Field(default=60000, alias="MAX_DIFF_CHARS")
+    allowed_repositories: str = Field(default="", alias="ALLOWED_REPOSITORIES")
+
+    @field_validator("llm_provider", mode="before")
+    @classmethod
+    def normalize_provider(cls, value: object) -> object:
+        if isinstance(value, str):
+            return value.strip().lower()
+        return value
+
+    @model_validator(mode="after")
+    def validate_provider_credentials(self) -> "Settings":
