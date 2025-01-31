@@ -48,3 +48,19 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_provider_credentials(self) -> "Settings":
+        if self.llm_provider == "openai" and not self.openai_api_key:
+            raise ValueError("OPENAI_API_KEY is required when LLM_PROVIDER=openai")
+        if self.llm_provider == "azure_openai":
+            missing = [
+                name
+                for name, value in (
+                    ("AZURE_OPENAI_API_KEY", self.azure_openai_api_key),
+                    ("AZURE_OPENAI_ENDPOINT", self.azure_openai_endpoint),
+                    ("AZURE_OPENAI_DEPLOYMENT", self.azure_openai_deployment),
+                )
+                if not value
+            ]
+            if missing:
+                raise ValueError(
+                    "Missing Azure OpenAI settings when LLM_PROVIDER=azure_openai: "
+                    + ", ".join(missing)
