@@ -9,14 +9,6 @@ from sqlalchemy.types import JSON
 
 
 def utc_now() -> datetime:
-    return datetime.now(timezone.utc)
-
-
-class Base(DeclarativeBase):
-    pass
-
-
-class AnalysisStatusEnum(str, enum.Enum):
     queued = "queued"
     running = "running"
     completed = "completed"
