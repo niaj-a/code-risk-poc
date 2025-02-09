@@ -9,6 +9,14 @@ from sqlalchemy.types import JSON
 
 
 def utc_now() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+class AnalysisStatusEnum(str, enum.Enum):
     queued = "queued"
     running = "running"
     completed = "completed"
@@ -34,3 +42,25 @@ class Analysis(Base):
             native_enum=False,
             values_callable=lambda x: [e.value for e in x],
         ),
+        nullable=False,
+        default=AnalysisStatusEnum.queued,
+    )
+    raw_diff: Mapped[str] = mapped_column(Text, nullable=False)
+    redacted_diff: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # JSON for sqlite tests; JSONB on postgres
+    report: Mapped[dict | None] = mapped_column(
+        JSON().with_variant(JSONB(), "postgresql"),
+        nullable=True,
+    )
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=utc_now,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=utc_now,
+        onupdate=utc_now,
+    )
