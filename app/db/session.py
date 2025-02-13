@@ -27,3 +27,17 @@ SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
 
+
+def get_db() -> Generator[Session, None, None]:
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+def configure_engine(database_url: str) -> None:
+    """Swap the global engine (tests)."""
+    global engine, SessionLocal
+    engine = _create_engine(database_url)
+    SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
