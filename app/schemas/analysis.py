@@ -34,3 +34,21 @@ class Finding(BaseModel):
     file: str | None = None
     line_reference: str | None = None
     recommendation: str
+
+
+class AnalysisReport(BaseModel):
+    risk_level: RiskLevel
+    summary: str
+    findings: list[Finding] = Field(default_factory=list)
+    recommended_tests: list[str] = Field(default_factory=list)
+    positive_changes: list[str] = Field(default_factory=list)
+    requires_human_review: bool = True
+
+
+class ManualAnalysisRequest(BaseModel):
+    repository: str = Field(min_length=1)
+    commit_sha: str = Field(min_length=1)
+    branch: str | None = None
+    diff: str = Field(min_length=1)
+
+
