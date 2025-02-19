@@ -16,3 +16,21 @@ class Severity(str, Enum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
+    CRITICAL = "critical"
+
+
+class RiskLevel(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+class Finding(BaseModel):
+    category: str
+    severity: Severity
+    title: str
+    explanation: str
+    file: str | None = None
+    line_reference: str | None = None
+    recommendation: str
