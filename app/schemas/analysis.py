@@ -52,3 +52,21 @@ class ManualAnalysisRequest(BaseModel):
     diff: str = Field(min_length=1)
 
 
+class AnalysisAcceptedResponse(BaseModel):
+    analysis_id: str
+    status: AnalysisStatus = AnalysisStatus.QUEUED
+
+
+class AnalysisDetailResponse(BaseModel):
+    id: str
+    repository: str
+    commit_sha: str
+    branch: str | None
+    event_type: str
+    status: AnalysisStatus
+    report: dict[str, Any] | None
+    error_message: str | None
+    created_at: datetime
+    updated_at: datetime
+
+
