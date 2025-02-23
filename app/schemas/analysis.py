@@ -24,20 +24,6 @@ class RiskLevel(str, Enum):
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
-
-
-class Finding(BaseModel):
-    category: str
-    severity: Severity
-    title: str
-    explanation: str
-    file: str | None = None
-    line_reference: str | None = None
-    recommendation: str
-
-
-class AnalysisReport(BaseModel):
-    risk_level: RiskLevel
     summary: str
     findings: list[Finding] = Field(default_factory=list)
     recommended_tests: list[str] = Field(default_factory=list)
