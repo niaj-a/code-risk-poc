@@ -12,3 +12,16 @@ def verify_github_signature(
         return False
 
     provided = signature_header.removeprefix("sha256=")
+    expected = hmac.new(
+        secret.encode("utf-8"),
+        payload,
+        hashlib.sha256,
+    ).hexdigest()
+    return hmac.compare_digest(provided, expected)
+
+
+def is_repository_allowed(repository: str, allowed: set[str]) -> bool:
+    # empty allowlist = open (handy locally)
+    if not allowed:
+        return True
+    return repository in allowed
