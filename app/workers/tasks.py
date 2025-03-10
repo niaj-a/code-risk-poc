@@ -33,3 +33,20 @@ def run_analysis_pipeline(db: Session, analysis_id: str) -> None:
 
     analysis.status = AnalysisStatusEnum.running
     analysis.error_message = None
+    _touch(analysis)
+    db.commit()
+
+    try:
+        limited = analysis.raw_diff[: settings.max_diff_chars]
+        redacted = redact_sensitive_content(limited)
+        analysis.redacted_diff = redacted
+        db.commit()
+
+        analyzer = get_analyzer(settings)
+        report = analyzer.analyze(redacted)
+        report.requires_human_review = True
+
+        analysis.report = report.model_dump(mode="json")
+        analysis.status = AnalysisStatusEnum.completed
+        analysis.error_message = None
+        _touch(analysis)
