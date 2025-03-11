@@ -50,3 +50,21 @@ def run_analysis_pipeline(db: Session, analysis_id: str) -> None:
         analysis.status = AnalysisStatusEnum.completed
         analysis.error_message = None
         _touch(analysis)
+        db.commit()
+        logger.info("analysis done: %s", analysis_id)
+    except Exception:
+        logger.exception("analysis failed id=%s", analysis_id)
+        db.rollback()
+        analysis = db.get(Analysis, analysis_id)
+        if analysis is not None:
+            analysis.status = AnalysisStatusEnum.failed
+            analysis.error_message = SAFE_FAILURE_MESSAGE
+            _touch(analysis)
+            db.commit()
+        raise
+
+
+@celery_app.task(
+    bind=True,
+    name="app.workers.tasks.process_analysis",
+    max_retries=3,
