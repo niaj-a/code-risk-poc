@@ -22,20 +22,6 @@ SAFE_FAILURE_MESSAGE = (
 
 def _touch(analysis: Analysis) -> None:
     analysis.updated_at = datetime.now(timezone.utc)
-
-
-def run_analysis_pipeline(db: Session, analysis_id: str) -> None:
-    settings = get_settings()
-    analysis = db.get(Analysis, analysis_id)
-    if analysis is None:
-        logger.error("analysis missing: %s", analysis_id)
-        return
-
-    analysis.status = AnalysisStatusEnum.running
-    analysis.error_message = None
-    _touch(analysis)
-    db.commit()
-
     try:
         limited = analysis.raw_diff[: settings.max_diff_chars]
         redacted = redact_sensitive_content(limited)
