@@ -22,6 +22,20 @@ SAFE_FAILURE_MESSAGE = (
 
 def _touch(analysis: Analysis) -> None:
     analysis.updated_at = datetime.now(timezone.utc)
+
+
+def run_analysis_pipeline(db: Session, analysis_id: str) -> None:
+    settings = get_settings()
+    analysis = db.get(Analysis, analysis_id)
+    if analysis is None:
+        logger.error("analysis missing: %s", analysis_id)
+        return
+
+    analysis.status = AnalysisStatusEnum.running
+    analysis.error_message = None
+    _touch(analysis)
+    db.commit()
+
     try:
         limited = analysis.raw_diff[: settings.max_diff_chars]
         redacted = redact_sensitive_content(limited)
@@ -54,3 +68,20 @@ def _touch(analysis: Analysis) -> None:
     bind=True,
     name="app.workers.tasks.process_analysis",
     max_retries=3,
+    autoretry_for=(ConnectionError, TimeoutError, SoftTimeLimitExceeded, OSError),
+    retry_backoff=True,
+    retry_jitter=True,
+)
+def process_analysis(self, analysis_id: str) -> str:
+    db = db_session.SessionLocal()
+    try:
+        run_analysis_pipeline(db, analysis_id)
+        return analysis_id
+    except (ConnectionError, TimeoutError, SoftTimeLimitExceeded, OSError) as exc:
+        raise self.retry(exc=exc) from exc
+    finally:
+        db.close()
+
+
+def enqueue_analysis(analysis_id: str) -> None:
+    process_analysis.delay(analysis_id)
