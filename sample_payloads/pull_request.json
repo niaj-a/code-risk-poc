@@ -1,0 +1,12 @@
+{
+  "action": "opened",
+  "number": 42,
+  "pull_request": {
+    "id": 1001,
+    "number": 42,
+    "title": "Improve payment logging",
+    "body": "Adds structured logging around payment status transitions. Advisory review requested.",
+    "head": {
+      "ref": "feature/payment-logging",
+      "sha": "def456abc7890123def456abc7890123def456ab"
+    },
