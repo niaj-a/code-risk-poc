@@ -10,3 +10,15 @@
       "ref": "feature/payment-logging",
       "sha": "def456abc7890123def456abc7890123def456ab"
     },
+    "base": {
+      "ref": "main",
+      "sha": "aaa111bbb222ccc333ddd444eee555fff666aaa1"
+    }
+  },
+  "repository": {
+    "id": 1,
+    "full_name": "bank/payments-api",
+    "name": "payments-api",
+    "private": true
+  }
+}
