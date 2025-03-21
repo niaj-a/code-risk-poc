@@ -1,0 +1,12 @@
+{
+  "ref": "refs/heads/feature/payment-logging",
+  "before": "0000000000000000000000000000000000000000",
+  "after": "abc123def4567890abc123def4567890abc123de",
+  "repository": {
+    "id": 1,
+    "full_name": "bank/payments-api",
+    "name": "payments-api",
+    "private": true
+  },
+  "pusher": {
+    "name": "developer",
