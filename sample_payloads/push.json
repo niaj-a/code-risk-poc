@@ -10,3 +10,16 @@
   },
   "pusher": {
     "name": "developer",
+    "email": "developer@example.com"
+  },
+  "commits": [
+    {
+      "id": "abc123def4567890abc123def4567890abc123de",
+      "message": "Add payment logging helpers",
+      "timestamp": "2026-07-14T12:00:00Z",
+      "added": ["app/logging_utils.py"],
+      "modified": ["app/payment.py"],
+      "removed": []
+    }
+  ]
+}
