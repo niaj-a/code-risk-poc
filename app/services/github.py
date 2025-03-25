@@ -15,3 +15,19 @@ class ParsedGitHubEvent:
     repository: str
     commit_sha: str
     branch: str | None
+    event_type: str
+    raw_diff: str
+    commit_messages: list[str] = field(default_factory=list)
+    added_files: list[str] = field(default_factory=list)
+    modified_files: list[str] = field(default_factory=list)
+    removed_files: list[str] = field(default_factory=list)
+    pr_title: str | None = None
+    pr_body: str | None = None
+    has_full_patch: bool = False
+
+
+class DiffFetcher(Protocol):
+    """Hook for a future GitHub App / ADO compare fetch. Not implemented here."""
+
+    def fetch_compare_diff(
+        self,
