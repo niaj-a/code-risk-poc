@@ -48,3 +48,20 @@ class StubDiffFetcher:
     ) -> str:
         raise NotImplementedError(
             f"compare diff not implemented ({repository} {base_sha}..{head_sha})"
+        )
+
+    def fetch_pull_request_diff(self, repository: str, pr_number: int) -> str:
+        raise NotImplementedError(
+            f"PR diff not implemented ({repository}#{pr_number})"
+        )
+
+
+def parse_github_event(event_type: str, payload: dict[str, Any]) -> ParsedGitHubEvent:
+    if event_type == "push":
+        return _parse_push(payload)
+    if event_type == "pull_request":
+        return _parse_pull_request(payload)
+    raise ValueError(f"Unsupported GitHub event type: {event_type}")
+
+
+def _repo_full_name(payload: dict[str, Any]) -> str:
