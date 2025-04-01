@@ -82,3 +82,19 @@ def _parse_push(payload: dict[str, Any]) -> ParsedGitHubEvent:
         else:
             commit_sha = "unknown"
 
+    ref = str(payload.get("ref") or "")
+    branch = ref.removeprefix("refs/heads/") if ref.startswith("refs/heads/") else ref or None
+
+    commit_messages: list[str] = []
+    added: list[str] = []
+    modified: list[str] = []
+    removed: list[str] = []
+
+    for commit in payload.get("commits") or []:
+        msg = commit.get("message")
+        if msg:
+            commit_messages.append(str(msg))
+        added.extend(str(f) for f in (commit.get("added") or []))
+        modified.extend(str(f) for f in (commit.get("modified") or []))
+        removed.extend(str(f) for f in (commit.get("removed") or []))
+
