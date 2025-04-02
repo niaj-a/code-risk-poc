@@ -98,3 +98,20 @@ def _parse_push(payload: dict[str, Any]) -> ParsedGitHubEvent:
         modified.extend(str(f) for f in (commit.get("modified") or []))
         removed.extend(str(f) for f in (commit.get("removed") or []))
 
+    def _bullets(items: list[str]) -> list[str]:
+        return [f"  - {item}" for item in items] if items else ["  - (none)"]
+
+    lines = [
+        METADATA_ONLY_MARKER,
+        "Event: push",
+        f"Repository: {repository}",
+        f"Commit SHA: {commit_sha}",
+        f"Branch: {branch or 'unknown'}",
+        "Commit messages:",
+        *_bullets(commit_messages),
+        "Added files:",
+        *_bullets(sorted(set(added))),
+        "Modified files:",
+        *_bullets(sorted(set(modified))),
+        "Removed files:",
+        *_bullets(sorted(set(removed))),
