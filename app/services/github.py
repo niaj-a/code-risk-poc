@@ -115,3 +115,20 @@ def _parse_push(payload: dict[str, Any]) -> ParsedGitHubEvent:
         *_bullets(sorted(set(modified))),
         "Removed files:",
         *_bullets(sorted(set(removed))),
+    ]
+
+    return ParsedGitHubEvent(
+        repository=repository,
+        commit_sha=commit_sha,
+        branch=branch,
+        event_type="push",
+        raw_diff="\n".join(lines),
+        commit_messages=commit_messages,
+        added_files=sorted(set(added)),
+        modified_files=sorted(set(modified)),
+        removed_files=sorted(set(removed)),
+        has_full_patch=False,
+    )
+
+
+def _parse_pull_request(payload: dict[str, Any]) -> ParsedGitHubEvent:
