@@ -132,3 +132,19 @@ def _parse_push(payload: dict[str, Any]) -> ParsedGitHubEvent:
 
 
 def _parse_pull_request(payload: dict[str, Any]) -> ParsedGitHubEvent:
+    repository = _repo_full_name(payload)
+    pr = payload.get("pull_request") or {}
+    head = pr.get("head") or {}
+    commit_sha = str(head.get("sha") or "")
+    branch = head.get("ref")
+    title = pr.get("title")
+    body = pr.get("body")
+
+    if not commit_sha:
+        raise ValueError("Pull request payload missing pull_request.head.sha")
+
+    lines = [
+        METADATA_ONLY_MARKER,
+        "Event: pull_request",
+        f"Action: {payload.get('action', 'unknown')}",
+        f"Repository: {repository}",
