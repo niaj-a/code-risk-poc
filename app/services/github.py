@@ -49,36 +49,6 @@ class StubDiffFetcher:
         raise NotImplementedError(
             f"compare diff not implemented ({repository} {base_sha}..{head_sha})"
         )
-
-    def fetch_pull_request_diff(self, repository: str, pr_number: int) -> str:
-        raise NotImplementedError(
-            f"PR diff not implemented ({repository}#{pr_number})"
-        )
-
-
-def parse_github_event(event_type: str, payload: dict[str, Any]) -> ParsedGitHubEvent:
-    if event_type == "push":
-        return _parse_push(payload)
-    if event_type == "pull_request":
-        return _parse_pull_request(payload)
-    raise ValueError(f"Unsupported GitHub event type: {event_type}")
-
-
-def _repo_full_name(payload: dict[str, Any]) -> str:
-    repo = payload.get("repository") or {}
-    name = repo.get("full_name")
-    if not name:
-        raise ValueError("Webhook payload missing repository.full_name")
-    return str(name)
-
-
-def _parse_push(payload: dict[str, Any]) -> ParsedGitHubEvent:
-    repository = _repo_full_name(payload)
-    commit_sha = str(payload.get("after") or "")
-    if not commit_sha or commit_sha == "0" * 40:
-        commits = payload.get("commits") or []
-        if commits:
-            commit_sha = str(commits[-1].get("id") or "unknown")
         else:
             commit_sha = "unknown"
 
