@@ -32,3 +32,20 @@ Always set requires_human_review=true. This is triage help, not approval.
 
 CHAT_SYSTEM_PROMPT = """Answer questions about a finished code-risk analysis.
 
+Stick to the redacted diff and report. If you don't have enough evidence, say so.
+Don't claim compliance or security approval. Cite findings only when the report
+has matching file/line refs.
+"""
+
+
+class CodeChangeAnalyzer(Protocol):
+    def analyze(self, redacted_diff: str) -> AnalysisReport: ...
+
+
+class ChatResponder(Protocol):
+    def chat(
+        self,
+        question: str,
+        redacted_diff: str,
+        report: AnalysisReport,
+    ) -> ChatResponse: ...
