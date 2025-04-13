@@ -49,3 +49,20 @@ class ChatResponder(Protocol):
         redacted_diff: str,
         report: AnalysisReport,
     ) -> ChatResponse: ...
+
+
+def _build_chat_model(settings: Settings):
+    from langchain_openai import AzureChatOpenAI, ChatOpenAI
+
+    if settings.llm_provider == "openai":
+        return ChatOpenAI(
+            api_key=settings.openai_api_key,
+            model=settings.openai_model,
+            temperature=0,
+        )
+    if settings.llm_provider == "azure_openai":
+        return AzureChatOpenAI(
+            api_key=settings.azure_openai_api_key,
+            azure_endpoint=settings.azure_openai_endpoint,
+            api_version=settings.azure_openai_api_version,
+            azure_deployment=settings.azure_openai_deployment,
