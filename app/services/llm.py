@@ -83,3 +83,20 @@ class LangChainAnalyzer:
 
     def analyze(self, redacted_diff: str) -> AnalysisReport:
         from langchain_core.messages import HumanMessage, SystemMessage
+
+        structured = self._model.with_structured_output(AnalysisReport)
+        result = structured.invoke(
+            [
+                SystemMessage(content=ANALYSIS_SYSTEM_PROMPT),
+                HumanMessage(
+                    content=f"Review this change:\n\n{redacted_diff}"
+                ),
+            ]
+        )
+        if isinstance(result, AnalysisReport):
+            result.requires_human_review = True
+            return result
+        report = AnalysisReport.model_validate(result)
+        report.requires_human_review = True
+        return report
+
