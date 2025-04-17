@@ -100,3 +100,20 @@ class LangChainAnalyzer:
         report.requires_human_review = True
         return report
 
+
+class MockChatResponder:
+    def chat(
+        self,
+        question: str,
+        redacted_diff: str,
+        report: AnalysisReport,
+    ) -> ChatResponse:
+        del redacted_diff
+        q = question.lower()
+        relevant: list[Finding] = []
+        keywords = [w for w in _split_words(q) if len(w) > 3]
+        for finding in report.findings:
+            hay = f"{finding.title} {finding.explanation} {finding.category}".lower()
+            if any(k in hay for k in keywords) or any(
+                k in q for k in ("risk", "secur", "data", "customer", "inject", "secret", "tls")
+            ):
