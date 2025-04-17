@@ -117,3 +117,20 @@ class MockChatResponder:
             if any(k in hay for k in keywords) or any(
                 k in q for k in ("risk", "secur", "data", "customer", "inject", "secret", "tls")
             ):
+                relevant.append(finding)
+
+        if not relevant and report.findings:
+            relevant = report.findings[:3]
+
+        citations = [
+            Citation(file=f.file, line_reference=f.line_reference)
+            for f in relevant
+            if f.file
+        ]
+
+        if not report.findings:
+            answer = (
+                "Nothing specific showed up in the stored report for this change. "
+                "That isn't a clean bill of health — someone still needs to review it."
+            )
+        else:
