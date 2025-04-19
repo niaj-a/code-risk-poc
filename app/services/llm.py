@@ -134,3 +134,20 @@ class MockChatResponder:
                 "That isn't a clean bill of health — someone still needs to review it."
             )
         else:
+            bullets = "; ".join(
+                f"{f.severity.value}: {f.title}" + (f" ({f.file})" if f.file else "")
+                for f in relevant[:5]
+            )
+            answer = (
+                f"From the stored report (risk_level={report.risk_level.value}): "
+                f"{bullets}. Summary: {report.summary} "
+                "If you need something outside the report/diff, we don't have enough "
+                "context here."
+            )
+
+        return ChatResponse(answer=answer, citations=citations, disclaimer=DISCLAIMER)
+
+
+def _split_words(text: str) -> list[str]:
+    import re
+
