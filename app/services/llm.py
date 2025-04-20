@@ -151,3 +151,20 @@ class MockChatResponder:
 def _split_words(text: str) -> list[str]:
     import re
 
+    return re.findall(r"[a-z0-9]+", text.lower())
+
+
+class LangChainChatResponder:
+    def __init__(self, settings: Settings) -> None:
+        self._model = _build_chat_model(settings)
+
+    def chat(
+        self,
+        question: str,
+        redacted_diff: str,
+        report: AnalysisReport,
+    ) -> ChatResponse:
+        from langchain_core.messages import HumanMessage, SystemMessage
+
+        structured = self._model.with_structured_output(ChatResponse)
+        payload = (
