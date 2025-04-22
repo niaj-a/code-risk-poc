@@ -168,3 +168,20 @@ class LangChainChatResponder:
 
         structured = self._model.with_structured_output(ChatResponse)
         payload = (
+            f"Question: {question}\n\n"
+            f"Report:\n{report.model_dump_json()}\n\n"
+            f"Redacted diff:\n{redacted_diff[:20000]}\n"
+        )
+        result = structured.invoke(
+            [
+                SystemMessage(content=CHAT_SYSTEM_PROMPT),
+                HumanMessage(content=payload),
+            ]
+        )
+        if isinstance(result, ChatResponse):
+            result.disclaimer = DISCLAIMER
+            return result
+        response = ChatResponse.model_validate(result)
+        response.disclaimer = DISCLAIMER
+        return response
+
