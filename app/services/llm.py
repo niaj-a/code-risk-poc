@@ -52,43 +52,6 @@ class ChatResponder(Protocol):
 
 
 def _build_chat_model(settings: Settings):
-    from langchain_openai import AzureChatOpenAI, ChatOpenAI
-
-    if settings.llm_provider == "openai":
-        return ChatOpenAI(
-            api_key=settings.openai_api_key,
-            model=settings.openai_model,
-            temperature=0,
-        )
-    if settings.llm_provider == "azure_openai":
-        return AzureChatOpenAI(
-            api_key=settings.azure_openai_api_key,
-            azure_endpoint=settings.azure_openai_endpoint,
-            api_version=settings.azure_openai_api_version,
-            azure_deployment=settings.azure_openai_deployment,
-            temperature=0,
-        )
-    raise ValueError(f"Unsupported LLM provider for chat model: {settings.llm_provider}")
-
-
-class MockAnalyzer:
-    def analyze(self, redacted_diff: str) -> AnalysisReport:
-        return mock_analyzer.analyze_diff(redacted_diff)
-
-
-class LangChainAnalyzer:
-    def __init__(self, settings: Settings) -> None:
-        self._settings = settings
-        self._model = _build_chat_model(settings)
-
-    def analyze(self, redacted_diff: str) -> AnalysisReport:
-        from langchain_core.messages import HumanMessage, SystemMessage
-
-        structured = self._model.with_structured_output(AnalysisReport)
-        result = structured.invoke(
-            [
-                SystemMessage(content=ANALYSIS_SYSTEM_PROMPT),
-                HumanMessage(
                     content=f"Review this change:\n\n{redacted_diff}"
                 ),
             ]
