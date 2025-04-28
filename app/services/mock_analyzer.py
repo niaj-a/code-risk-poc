@@ -33,3 +33,21 @@ _SHELL_EXEC = re.compile(
 
 def _line_ref_for_match(diff: str, match: re.Match[str]) -> tuple[str | None, str | None]:
     start = match.start()
+    preceding = diff[:start]
+    file_name: str | None = None
+    for line in reversed(preceding.splitlines()):
+        if line.startswith("+++ b/") or line.startswith("+++ "):
+            file_name = line.replace("+++ b/", "").replace("+++ ", "").strip()
+            if file_name != "/dev/null":
+                break
+        if line.startswith("diff --git"):
+            parts = line.split()
+            if len(parts) >= 4:
+                file_name = parts[3].removeprefix("b/")
+            break
+
+    hunk_matches = list(re.finditer(r"@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@", preceding))
+    if hunk_matches:
+        last = hunk_matches[-1]
+        start_line = int(last.group(1))
+        segment = preceding[last.end() :]
