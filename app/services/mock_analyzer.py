@@ -51,3 +51,21 @@ def _line_ref_for_match(diff: str, match: re.Match[str]) -> tuple[str | None, st
         last = hunk_matches[-1]
         start_line = int(last.group(1))
         segment = preceding[last.end() :]
+        added = sum(
+            1 for ln in segment.splitlines() if ln.startswith("+") and not ln.startswith("+++")
+        )
+        return file_name, str(start_line + added)
+    return file_name, None
+
+
+def analyze_diff(diff: str) -> AnalysisReport:
+    findings: list[Finding] = []
+
+    for pattern, builder in (
+        (
+            _SQL_FSTRING,
+            lambda f, lr: Finding(
+                category="sql_injection",
+                severity=Severity.HIGH,
+                title="Possible SQL injection via interpolated query",
+                explanation=(
