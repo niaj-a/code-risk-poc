@@ -69,3 +69,20 @@ def analyze_diff(diff: str) -> AnalysisReport:
                 severity=Severity.HIGH,
                 title="Possible SQL injection via interpolated query",
                 explanation=(
+                    "Looks like SQL built with an f-string. If user input lands here, "
+                    "that's classic injection territory."
+                ),
+                file=f,
+                line_reference=lr,
+                recommendation="Use parameterized queries / bound params.",
+            ),
+        ),
+        (
+            _SQL_FORMAT,
+            lambda f, lr: Finding(
+                category="sql_injection",
+                severity=Severity.HIGH,
+                title="Possible SQL injection via string formatting",
+                explanation=(
+                    "SQL-ish text with % formatting or concatenation. Check whether "
+                    "inputs are trusted and whether params are used."
