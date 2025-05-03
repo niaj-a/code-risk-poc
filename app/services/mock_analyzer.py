@@ -86,3 +86,21 @@ def analyze_diff(diff: str) -> AnalysisReport:
                 explanation=(
                     "SQL-ish text with % formatting or concatenation. Check whether "
                     "inputs are trusted and whether params are used."
+                ),
+                file=f,
+                line_reference=lr,
+                recommendation="Switch to parameterized statements.",
+            ),
+        ),
+        (
+            _SENSITIVE_LOG,
+            lambda f, lr: Finding(
+                category="sensitive_data_logging",
+                severity=Severity.HIGH,
+                title="Possible sensitive data in logs",
+                explanation=(
+                    "Log/print path mentions customer, account, card, password, or token. "
+                    "Easy way to leak PII into log stores."
+                ),
+                file=f,
+                line_reference=lr,
