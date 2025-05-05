@@ -104,3 +104,21 @@ def analyze_diff(diff: str) -> AnalysisReport:
                 ),
                 file=f,
                 line_reference=lr,
+                recommendation="Drop or redact sensitive fields before logging.",
+            ),
+        ),
+        (
+            _TLS_DISABLED,
+            lambda f, lr: Finding(
+                category="tls_verification",
+                severity=Severity.CRITICAL,
+                title="TLS certificate verification appears disabled",
+                explanation=(
+                    "verify=False / similar. Opens the door to MITM on outbound calls."
+                ),
+                file=f,
+                line_reference=lr,
+                recommendation="Keep cert verification on; fix the trust store instead.",
+            ),
+        ),
+        (
