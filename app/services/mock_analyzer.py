@@ -122,3 +122,20 @@ def analyze_diff(diff: str) -> AnalysisReport:
             ),
         ),
         (
+            _HARDCODED_SECRET,
+            lambda f, lr: Finding(
+                category="secrets",
+                severity=Severity.CRITICAL,
+                title="Possible hardcoded secret",
+                explanation=(
+                    "Looks like an api key / password / token baked into source. "
+                    "Rotate it and pull from a secret store."
+                ),
+                file=f,
+                line_reference=lr,
+                recommendation="Remove from code, rotate, load from vault/env at runtime.",
+            ),
+        ),
+        (
+            _SHELL_EXEC,
+            lambda f, lr: Finding(
