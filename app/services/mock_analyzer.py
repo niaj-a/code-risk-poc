@@ -139,3 +139,21 @@ def analyze_diff(diff: str) -> AnalysisReport:
         (
             _SHELL_EXEC,
             lambda f, lr: Finding(
+                category="command_injection",
+                severity=Severity.HIGH,
+                title="Dangerous shell or dynamic execution",
+                explanation=(
+                    "os.system / shell=True / eval / exec. Bad news if args include "
+                    "untrusted input."
+                ),
+                file=f,
+                line_reference=lr,
+                recommendation="Prefer argv lists; avoid shell=True and eval/exec.",
+            ),
+        ),
+    ):
+        for match in pattern.finditer(diff):
+            file_name, line_ref = _line_ref_for_match(diff, match)
+            finding = builder(file_name, line_ref)
+            key = (finding.title, finding.file, finding.line_reference)
+            if any(
