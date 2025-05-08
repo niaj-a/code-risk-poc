@@ -157,3 +157,21 @@ def analyze_diff(diff: str) -> AnalysisReport:
             finding = builder(file_name, line_ref)
             key = (finding.title, finding.file, finding.line_reference)
             if any(
+                (existing.title, existing.file, existing.line_reference) == key
+                for existing in findings
+            ):
+                continue
+            findings.append(finding)
+
+    if "METADATA ONLY" in diff.upper() or "not a complete code diff" in diff.lower():
+        findings.append(
+            Finding(
+                category="incomplete_context",
+                severity=Severity.MEDIUM,
+                title="Analysis based on metadata only",
+                explanation=(
+                    "No full patch in the payload — we're working off event metadata. "
+                    "Don't treat this as a real diff review."
+                ),
+                file=None,
+                line_reference=None,
