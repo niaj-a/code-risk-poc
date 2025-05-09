@@ -175,3 +175,20 @@ def analyze_diff(diff: str) -> AnalysisReport:
                 ),
                 file=None,
                 line_reference=None,
+                recommendation="Wire up a GitHub App (or similar) to fetch the real diff.",
+            )
+        )
+
+    risk = _aggregate_risk(findings)
+    recommended_tests = [
+        "Authn/authz tests if those paths changed",
+        "Injection coverage on touched data-access code",
+        "Regression on payment/account flows if relevant",
+    ]
+    positive: list[str] = []
+    if not findings:
+        positive.append("No heuristic hits — still not a free pass.")
+
+    summary = (
+        f"Mock analyzer found {len(findings)} issue(s), "
+        f"risk_level={risk.value}. Human review still required."
