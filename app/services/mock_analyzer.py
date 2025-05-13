@@ -93,6 +93,44 @@ def analyze_diff(diff: str) -> AnalysisReport:
             ),
         ),
         (
+            _SENSITIVE_LOG,
+            lambda f, lr: Finding(
+                category="sensitive_data_logging",
+                severity=Severity.HIGH,
+                title="Possible sensitive data in logs",
+                explanation=(
+                    "Log/print path mentions customer, account, card, password, or token. "
+                    "Easy way to leak PII into log stores."
+                ),
+                file=f,
+                line_reference=lr,
+                recommendation="Drop or redact sensitive fields before logging.",
+            ),
+        ),
+        (
+            _TLS_DISABLED,
+            lambda f, lr: Finding(
+                category="tls_verification",
+                severity=Severity.CRITICAL,
+                title="TLS certificate verification appears disabled",
+                explanation=(
+                    "verify=False / similar. Opens the door to MITM on outbound calls."
+                ),
+                file=f,
+                line_reference=lr,
+                recommendation="Keep cert verification on; fix the trust store instead.",
+            ),
+        ),
+        (
+            _HARDCODED_SECRET,
+            lambda f, lr: Finding(
+                category="secrets",
+                severity=Severity.CRITICAL,
+                title="Possible hardcoded secret",
+                explanation=(
+                    "Looks like an api key / password / token baked into source. "
+                    "Rotate it and pull from a secret store."
+                ),
                 file=f,
                 line_reference=lr,
                 recommendation="Remove from code, rotate, load from vault/env at runtime.",
@@ -154,3 +192,21 @@ def analyze_diff(diff: str) -> AnalysisReport:
     summary = (
         f"Mock analyzer found {len(findings)} issue(s), "
         f"risk_level={risk.value}. Human review still required."
+    )
+
+    return AnalysisReport(
+        risk_level=risk,
+        summary=summary,
+        findings=findings,
+        recommended_tests=recommended_tests,
+        positive_changes=positive,
+        requires_human_review=True,
+    )
+
+
+def _aggregate_risk(findings: list[Finding]) -> RiskLevel:
+    if not findings:
+        return RiskLevel.LOW
+    order = [Severity.LOW, Severity.MEDIUM, Severity.HIGH, Severity.CRITICAL]
+    max_sev = max(findings, key=lambda f: order.index(f.severity)).severity
+    return RiskLevel(max_sev.value)
