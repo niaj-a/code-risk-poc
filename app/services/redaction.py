@@ -42,3 +42,18 @@ def redact_sensitive_content(text: str) -> str:
 
             def _repl(match: re.Match[str], _p: re.Pattern[str] = pattern) -> str:
                 if _p.groups >= 1 and match.lastindex and match.lastindex >= 1:
+                    prefix = match.group(1)
+                    if prefix.lower().startswith("bearer") or prefix.lower().startswith(
+                        "authorization"
+                    ):
+                        return f"{prefix}{REDACTION_PLACEHOLDER}"
+                    if _p.groups >= 3:
+                        quote = match.group(2) or ""
+                        return f"{prefix}{quote}{REDACTION_PLACEHOLDER}{quote}"
+                    return f"{prefix}{REDACTION_PLACEHOLDER}"
+                return REDACTION_PLACEHOLDER
+
+            result = pattern.sub(_repl, result)
+        else:
+            result = pattern.sub(REDACTION_PLACEHOLDER, result)
+    return result
