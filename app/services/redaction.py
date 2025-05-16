@@ -28,3 +28,17 @@ _PATTERNS: list[re.Pattern[str]] = [
     re.compile(
         r"(?i)((?:api[_-]?key|secret[_-]?key|access[_-]?token|refresh[_-]?token|"
         r"client[_-]?secret|auth[_-]?token|private[_-]?key|password|passwd|pwd|"
+        r"secret|token)\s*[=:]\s*)([\"']?)[^\s\"'#]+(\2)"
+    ),
+    # rough PAN scrub; no Luhn check
+    re.compile(r"\b(?:\d[ -]*?){13,19}\b"),
+]
+
+
+def redact_sensitive_content(text: str) -> str:
+    result = text
+    for pattern in _PATTERNS:
+        if pattern.groups:
+
+            def _repl(match: re.Match[str], _p: re.Pattern[str] = pattern) -> str:
+                if _p.groups >= 1 and match.lastindex and match.lastindex >= 1:
