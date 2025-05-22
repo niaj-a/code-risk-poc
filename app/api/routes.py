@@ -15,3 +15,20 @@ from app.schemas.analysis import (
     AnalysisDetailResponse,
     AnalysisReport,
     AnalysisStatus,
+    ChatRequest,
+    ChatResponse,
+    HealthResponse,
+    ManualAnalysisRequest,
+)
+from app.services.github import parse_github_event
+from app.services.llm import DISCLAIMER, get_chat_responder
+from app.workers.tasks import enqueue_analysis
+
+logger = logging.getLogger(__name__)
+
+router = APIRouter()
+
+SUPPORTED_GITHUB_EVENTS = frozenset({"push", "pull_request"})
+
+
+@router.get("/health", response_model=HealthResponse)
