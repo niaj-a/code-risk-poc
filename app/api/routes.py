@@ -32,3 +32,20 @@ SUPPORTED_GITHUB_EVENTS = frozenset({"push", "pull_request"})
 
 
 @router.get("/health", response_model=HealthResponse)
+def health(settings: Settings = Depends(get_settings)) -> HealthResponse:
+    return HealthResponse(status="ok", environment=settings.environment)
+
+
+def _create_and_enqueue(
+    db: Session,
+    *,
+    repository: str,
+    commit_sha: str,
+    branch: str | None,
+    event_type: str,
+    raw_diff: str,
+) -> Analysis:
+    analysis = Analysis(
+        repository=repository,
+        commit_sha=commit_sha,
+        branch=branch,
