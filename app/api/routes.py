@@ -49,3 +49,19 @@ def _create_and_enqueue(
         repository=repository,
         commit_sha=commit_sha,
         branch=branch,
+        event_type=event_type,
+        status=AnalysisStatusEnum.queued,
+        raw_diff=raw_diff,
+    )
+    db.add(analysis)
+    db.commit()
+    db.refresh(analysis)
+    enqueue_analysis(analysis.id)
+    return analysis
+
+
+@router.post(
+    "/api/v1/analyses/manual",
+    response_model=AnalysisAcceptedResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+)
