@@ -82,3 +82,20 @@ def submit_manual_analysis(
         commit_sha=body.commit_sha,
         branch=body.branch,
         event_type="manual",
+        raw_diff=body.diff,
+    )
+    return AnalysisAcceptedResponse(
+        analysis_id=analysis.id,
+        status=AnalysisStatus.QUEUED,
+    )
+
+
+@router.post(
+    "/api/v1/webhooks/github",
+    response_model=AnalysisAcceptedResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def github_webhook(
+    request: Request,
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
