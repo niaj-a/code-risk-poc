@@ -65,3 +65,20 @@ def _create_and_enqueue(
     response_model=AnalysisAcceptedResponse,
     status_code=status.HTTP_202_ACCEPTED,
 )
+def submit_manual_analysis(
+    body: ManualAnalysisRequest,
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+) -> AnalysisAcceptedResponse:
+    if not is_repository_allowed(body.repository, settings.allowed_repository_set):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Repository is not in the allowlist",
+        )
+
+    analysis = _create_and_enqueue(
+        db,
+        repository=body.repository,
+        commit_sha=body.commit_sha,
+        branch=body.branch,
+        event_type="manual",
