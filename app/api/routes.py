@@ -99,3 +99,20 @@ async def github_webhook(
     request: Request,
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
+    x_hub_signature_256: str | None = Header(default=None, alias="X-Hub-Signature-256"),
+    x_github_event: str | None = Header(default=None, alias="X-GitHub-Event"),
+) -> AnalysisAcceptedResponse:
+    raw_body = await request.body()
+
+    if not verify_github_signature(
+        raw_body, x_hub_signature_256, settings.github_webhook_secret
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing webhook signature",
+        )
+
+    if not x_github_event or x_github_event not in SUPPORTED_GITHUB_EVENTS:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Unsupported GitHub event: {x_github_event}",
