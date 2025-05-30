@@ -133,3 +133,20 @@ async def github_webhook(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=str(exc),
         ) from exc
+
+    if not is_repository_allowed(parsed.repository, settings.allowed_repository_set):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Repository is not in the allowlist",
+        )
+
+    logger.info("github %s from %s", parsed.event_type, parsed.repository)
+
+    analysis = _create_and_enqueue(
+        db,
+        repository=parsed.repository,
+        commit_sha=parsed.commit_sha,
+        branch=parsed.branch,
+        event_type=parsed.event_type,
+        raw_diff=parsed.raw_diff,
+    )
