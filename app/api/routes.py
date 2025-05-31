@@ -150,3 +150,19 @@ async def github_webhook(
         event_type=parsed.event_type,
         raw_diff=parsed.raw_diff,
     )
+    return AnalysisAcceptedResponse(
+        analysis_id=analysis.id,
+        status=AnalysisStatus.QUEUED,
+    )
+
+
+@router.get(
+    "/api/v1/analyses/{analysis_id}",
+    response_model=AnalysisDetailResponse,
+)
+def get_analysis(
+    analysis_id: str,
+    db: Session = Depends(get_db),
+) -> AnalysisDetailResponse:
+    analysis = db.get(Analysis, analysis_id)
+    if analysis is None:
