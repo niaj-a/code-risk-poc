@@ -183,3 +183,20 @@ def get_analysis(
         updated_at=analysis.updated_at,
     )
 
+
+@router.post(
+    "/api/v1/analyses/{analysis_id}/chat",
+    response_model=ChatResponse,
+)
+def chat_with_analysis(
+    analysis_id: str,
+    body: ChatRequest,
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+) -> ChatResponse:
+    analysis = db.get(Analysis, analysis_id)
+    if analysis is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis not found",
+        )
