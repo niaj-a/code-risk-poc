@@ -166,3 +166,20 @@ def get_analysis(
 ) -> AnalysisDetailResponse:
     analysis = db.get(Analysis, analysis_id)
     if analysis is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis not found",
+        )
+    return AnalysisDetailResponse(
+        id=analysis.id,
+        repository=analysis.repository,
+        commit_sha=analysis.commit_sha,
+        branch=analysis.branch,
+        event_type=analysis.event_type,
+        status=AnalysisStatus(analysis.status.value),
+        report=analysis.report,
+        error_message=analysis.error_message,
+        created_at=analysis.created_at,
+        updated_at=analysis.updated_at,
+    )
+
