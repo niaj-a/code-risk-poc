@@ -54,46 +54,6 @@ def _create_and_enqueue(
         raw_diff=raw_diff,
     )
     db.add(analysis)
-    db.commit()
-    db.refresh(analysis)
-    enqueue_analysis(analysis.id)
-    return analysis
-
-
-@router.post(
-    "/api/v1/analyses/manual",
-    response_model=AnalysisAcceptedResponse,
-    status_code=status.HTTP_202_ACCEPTED,
-)
-def submit_manual_analysis(
-    body: ManualAnalysisRequest,
-    db: Session = Depends(get_db),
-    settings: Settings = Depends(get_settings),
-) -> AnalysisAcceptedResponse:
-    if not is_repository_allowed(body.repository, settings.allowed_repository_set):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Repository is not in the allowlist",
-        )
-
-    analysis = _create_and_enqueue(
-        db,
-        repository=body.repository,
-        commit_sha=body.commit_sha,
-        branch=body.branch,
-        event_type="manual",
-        raw_diff=body.diff,
-    )
-    return AnalysisAcceptedResponse(
-        analysis_id=analysis.id,
-        status=AnalysisStatus.QUEUED,
-    )
-
-
-@router.post(
-    "/api/v1/webhooks/github",
-    response_model=AnalysisAcceptedResponse,
-    status_code=status.HTTP_202_ACCEPTED,
 )
 async def github_webhook(
     request: Request,
