@@ -13,3 +13,18 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
 )
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    settings = get_settings()
+    logger.info(
+        "starting %s env=%s llm=%s",
+        settings.app_name,
+        settings.environment,
+        settings.llm_provider,
+    )
+    # fine for the POC; use migrations if this ever leaves the lab
+    init_db()
+    yield
