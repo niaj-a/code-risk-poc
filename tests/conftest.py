@@ -19,3 +19,24 @@ os.environ["AZURE_OPENAI_DEPLOYMENT"] = ""
 import pytest
 from fastapi.testclient import TestClient
 
+from app.core.config import get_settings
+from app.db import session as db_session
+from app.db.models import Base
+from app.main import create_app
+from app.workers.celery_app import celery_app
+
+get_settings.cache_clear()
+db_session.configure_engine(os.environ["DATABASE_URL"])
+celery_app.conf.task_always_eager = True
+celery_app.conf.task_eager_propagates = True
+
+
+@pytest.fixture()
+def settings():
+    get_settings.cache_clear()
+    return get_settings()
+
+
+@pytest.fixture()
+def db_engine():
+    Base.metadata.drop_all(bind=db_session.engine)
