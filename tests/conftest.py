@@ -18,6 +18,14 @@ os.environ["AZURE_OPENAI_DEPLOYMENT"] = ""
 
 import pytest
 from fastapi.testclient import TestClient
+
+from app.core.config import get_settings
+from app.db import session as db_session
+from app.db.models import Base
+from app.main import create_app
+from app.workers.celery_app import celery_app
+
+get_settings.cache_clear()
 db_session.configure_engine(os.environ["DATABASE_URL"])
 celery_app.conf.task_always_eager = True
 celery_app.conf.task_eager_propagates = True
@@ -32,3 +40,24 @@ def settings():
 @pytest.fixture()
 def db_engine():
     Base.metadata.drop_all(bind=db_session.engine)
+    Base.metadata.create_all(bind=db_session.engine)
+    yield db_session.engine
+    Base.metadata.drop_all(bind=db_session.engine)
+
+
+@pytest.fixture()
+def client(db_engine, settings):
+    del db_engine  # ensure schema prepared
+    application = create_app()
+
+    def _override_get_db():
+        db = db_session.SessionLocal()
+        try:
+            yield db
+        finally:
+            db.close()
+
+    application.dependency_overrides[db_session.get_db] = _override_get_db
+    with TestClient(application) as test_client:
+        yield test_client
+    application.dependency_overrides.clear()
