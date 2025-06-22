@@ -33,3 +33,21 @@ def test_manual_analysis_validation_and_flow(client):
         "/api/v1/analyses/manual",
         json={
             "repository": "bank/payments-api",
+            "commit_sha": "abc123",
+            "branch": "feature/payment-logging",
+            "diff": SAMPLE_DIFF,
+        },
+    )
+    assert response.status_code == 202
+    data = response.json()
+    assert data["status"] == "queued"
+    analysis_id = data["analysis_id"]
+    assert analysis_id
+
+    # Eager Celery should complete quickly
+    detail = None
+    for _ in range(20):
+        detail = client.get(f"/api/v1/analyses/{analysis_id}")
+        assert detail.status_code == 200
+        if detail.json()["status"] in ("completed", "failed"):
+            break
