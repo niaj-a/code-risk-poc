@@ -68,3 +68,21 @@ def test_manual_analysis_validation_and_flow(client):
     chat_body = chat.json()
     assert chat_body["answer"]
     assert "human" in chat_body["disclaimer"].lower()
+    assert "citations" in chat_body
+
+
+def test_unsupported_github_event(client):
+    body = b'{"repository":{"full_name":"bank/payments-api"}}'
+    secret = get_settings().github_webhook_secret
+    response = client.post(
+        "/api/v1/webhooks/github",
+        content=body,
+        headers={
+            "X-Hub-Signature-256": _sign(body, secret),
+            "X-GitHub-Event": "issues",
+            "Content-Type": "application/json",
+        },
+    )
+    assert response.status_code == 422
+
+
