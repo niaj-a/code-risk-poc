@@ -51,3 +51,20 @@ def test_manual_analysis_validation_and_flow(client):
         assert detail.status_code == 200
         if detail.json()["status"] in ("completed", "failed"):
             break
+        time.sleep(0.05)
+
+    assert detail is not None
+    body = detail.json()
+    assert body["status"] == "completed"
+    assert body["report"] is not None
+    assert body["report"]["requires_human_review"] is True
+    assert "findings" in body["report"]
+
+    chat = client.post(
+        f"/api/v1/analyses/{analysis_id}/chat",
+        json={"question": "Could this change expose customer data?"},
+    )
+    assert chat.status_code == 200
+    chat_body = chat.json()
+    assert chat_body["answer"]
+    assert "human" in chat_body["disclaimer"].lower()
