@@ -86,3 +86,20 @@ def test_unsupported_github_event(client):
     assert response.status_code == 422
 
 
+def test_github_invalid_signature(client):
+    body = b'{"repository":{"full_name":"bank/payments-api"}}'
+    response = client.post(
+        "/api/v1/webhooks/github",
+        content=body,
+        headers={
+            "X-Hub-Signature-256": "sha256=invalid",
+            "X-GitHub-Event": "push",
+            "Content-Type": "application/json",
+        },
+    )
+    assert response.status_code == 401
+
+
+def test_github_missing_signature(client):
+    body = b'{"repository":{"full_name":"bank/payments-api"}}'
+    response = client.post(
