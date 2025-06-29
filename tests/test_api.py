@@ -121,3 +121,20 @@ def test_github_push_accepted(client):
         "commits": [
             {
                 "id": "abc123def456",
+                "message": "Add logging",
+                "added": ["app/new.py"],
+                "modified": ["app/payment.py"],
+                "removed": [],
+            }
+        ],
+    }
+    body = json.dumps(payload).encode("utf-8")
+    secret = get_settings().github_webhook_secret
+    response = client.post(
+        "/api/v1/webhooks/github",
+        content=body,
+        headers={
+            "X-Hub-Signature-256": _sign(body, secret),
+            "X-GitHub-Event": "push",
+            "Content-Type": "application/json",
+        },
