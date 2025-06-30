@@ -156,3 +156,20 @@ def test_repository_allowlist(client, monkeypatch):
     def _override_get_db():
         db = db_session.SessionLocal()
         try:
+            yield db
+        finally:
+            db.close()
+
+    application.dependency_overrides[db_session.get_db] = _override_get_db
+
+    from fastapi.testclient import TestClient
+
+    with TestClient(application) as local_client:
+        response = local_client.post(
+            "/api/v1/analyses/manual",
+            json={
+                "repository": "bank/payments-api",
+                "commit_sha": "abc",
+                "diff": "+print(1)\n",
+            },
+        )
