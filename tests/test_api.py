@@ -138,3 +138,21 @@ def test_github_push_accepted(client):
             "X-GitHub-Event": "push",
             "Content-Type": "application/json",
         },
+    )
+    assert response.status_code == 202
+    assert response.json()["status"] == "queued"
+
+
+def test_repository_allowlist(client, monkeypatch):
+    monkeypatch.setenv("ALLOWED_REPOSITORIES", "bank/allowed-only")
+    get_settings.cache_clear()
+
+    # Recreate app so routes use updated settings via Depends(get_settings)
+    from app.db import session as db_session
+    from app.main import create_app
+
+    application = create_app()
+
+    def _override_get_db():
+        db = db_session.SessionLocal()
+        try:
