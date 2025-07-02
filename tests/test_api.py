@@ -173,3 +173,21 @@ def test_repository_allowlist(client, monkeypatch):
                 "diff": "+print(1)\n",
             },
         )
+        assert response.status_code == 403
+
+        ok = local_client.post(
+            "/api/v1/analyses/manual",
+            json={
+                "repository": "bank/allowed-only",
+                "commit_sha": "abc",
+                "diff": "+print(1)\n",
+            },
+        )
+        assert ok.status_code == 202
+
+    monkeypatch.setenv("ALLOWED_REPOSITORIES", "")
+    get_settings.cache_clear()
+
+
+def test_analysis_not_found(client):
+    response = client.get("/api/v1/analyses/00000000-0000-0000-0000-000000000000")
