@@ -191,3 +191,20 @@ def test_repository_allowlist(client, monkeypatch):
 
 def test_analysis_not_found(client):
     response = client.get("/api/v1/analyses/00000000-0000-0000-0000-000000000000")
+    assert response.status_code == 404
+
+
+def test_chat_before_completion(client):
+    from app.db import session as db_session
+    from app.db.models import Analysis, AnalysisStatusEnum
+
+    db = db_session.SessionLocal()
+    try:
+        analysis = Analysis(
+            repository="bank/payments-api",
+            commit_sha="abc",
+            branch="main",
+            event_type="manual",
+            status=AnalysisStatusEnum.queued,
+            raw_diff="+x\n",
+        )
