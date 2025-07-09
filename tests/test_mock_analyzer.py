@@ -12,3 +12,18 @@ diff --git a/app/payment.py b/app/payment.py
 '''
     report = analyze_diff(diff)
     assert isinstance(report, AnalysisReport)
+    assert any(f.category == "sql_injection" for f in report.findings)
+    assert report.requires_human_review is True
+
+
+def test_sensitive_logging_detection():
+    diff = '''
++++ b/app/logging_utils.py
+@@ -1,0 +2,1 @@
++logger.info("customer account %s card=%s", customer_id, card_last4)
+'''
+    report = analyze_diff(diff)
+    assert any(f.category == "sensitive_data_logging" for f in report.findings)
+
+
+def test_tls_verification_detection():
