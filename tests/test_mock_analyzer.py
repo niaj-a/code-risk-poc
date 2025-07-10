@@ -27,3 +27,18 @@ def test_sensitive_logging_detection():
 
 
 def test_tls_verification_detection():
+    diff = '''
++++ b/app/client.py
+@@ -5,0 +6,1 @@
++response = requests.get(url, verify=False)
+'''
+    report = analyze_diff(diff)
+    assert any(f.category == "tls_verification" for f in report.findings)
+    assert report.risk_level == RiskLevel.CRITICAL
+
+
+def test_hardcoded_secret_detection():
+    diff = '+api_key = "sk-abcdefghijklmnopqrstuvwxyz012345"\n'
+    report = analyze_diff(diff)
+    assert any(f.category == "secrets" for f in report.findings)
+
