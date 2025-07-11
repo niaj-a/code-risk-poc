@@ -42,3 +42,17 @@ def test_hardcoded_secret_detection():
     report = analyze_diff(diff)
     assert any(f.category == "secrets" for f in report.findings)
 
+
+def test_shell_execution_detection():
+    diff = '+subprocess.run(cmd, shell=True)\n'
+    report = analyze_diff(diff)
+    assert any(f.category == "command_injection" for f in report.findings)
+
+
+def test_mock_analysis_result_schema():
+    report = analyze_diff("+print('hello')\n")
+    validated = AnalysisReport.model_validate(report.model_dump())
+    assert validated.requires_human_review is True
+    assert validated.summary
+    assert isinstance(validated.findings, list)
+    assert isinstance(validated.recommended_tests, list)
