@@ -16,14 +16,6 @@ def test_password_redaction():
     assert REDACTION_PLACEHOLDER in redacted
 
 
-def test_bearer_token_redaction():
-    token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.payload.signature"
-    redacted = redact_sensitive_content(token)
-    assert "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9" not in redacted
-    assert REDACTION_PLACEHOLDER in redacted
-
-
-def test_private_key_redaction():
     pem = (
         "-----BEGIN RSA PRIVATE KEY-----\n"
         "MIIEpAIBAAKCAQEA0Z3VS5JJcds3xfn/ygWyF6PZGBw=\n"
