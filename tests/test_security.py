@@ -12,3 +12,16 @@ def _sign(secret: str, body: bytes) -> str:
 def test_valid_github_signature():
     secret = "test-webhook-secret"
     body = b'{"ref":"refs/heads/main"}'
+    assert verify_github_signature(body, _sign(secret, body), secret) is True
+
+
+def test_invalid_github_signature():
+    secret = "test-webhook-secret"
+    body = b'{"ref":"refs/heads/main"}'
+    assert (
+        verify_github_signature(body, "sha256=deadbeef", secret) is False
+    )
+
+
+def test_missing_github_signature():
+    secret = "test-webhook-secret"
