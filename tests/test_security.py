@@ -25,3 +25,17 @@ def test_invalid_github_signature():
 
 def test_missing_github_signature():
     secret = "test-webhook-secret"
+    body = b'{"ref":"refs/heads/main"}'
+    assert verify_github_signature(body, None, secret) is False
+    assert verify_github_signature(body, "", secret) is False
+    assert verify_github_signature(body, "sha1=abc", secret) is False
+
+
+def test_repository_allowlist_empty_allows_all():
+    assert is_repository_allowed("bank/payments-api", set()) is True
+
+
+def test_repository_allowlist_enforced():
+    allowed = {"bank/payments-api"}
+    assert is_repository_allowed("bank/payments-api", allowed) is True
+    assert is_repository_allowed("bank/other", allowed) is False
