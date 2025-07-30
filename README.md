@@ -16,3 +16,21 @@ stores findings in Postgres. Devs can chat against a finished analysis.
 - Repo allowlist, diff length cap
 - Compose stack: API, worker, Postgres, Redis
 
+```mermaid
+flowchart LR
+  subgraph ingress [Ingress]
+    GH[GitHub Webhook]
+    Manual[Manual Diff API]
+  end
+  subgraph apiLayer [FastAPI]
+    Routes[API Routes]
+    Sec[HMAC plus Allowlist]
+  end
+  subgraph asyncProc [Async]
+    Redis[(Redis)]
+    Celery[Celery Worker]
+  end
+  subgraph analyze [Analysis]
+    Redact[Redaction]
+    LLM[LangChain OpenAI or Azure]
+    Mock[Mock Analyzer]
