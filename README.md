@@ -34,3 +34,20 @@ flowchart LR
     Redact[Redaction]
     LLM[LangChain OpenAI or Azure]
     Mock[Mock Analyzer]
+  end
+  PG[(PostgreSQL)]
+  Routes --> Sec
+  GH --> Routes
+  Manual --> Routes
+  Sec -->|queued Analysis| PG
+  Sec -->|task| Redis
+  Redis --> Celery
+  Celery --> Redact
+  Redact --> LLM
+  Redact --> Mock
+  Celery -->|completed or failed| PG
+  Routes -->|GET and chat| PG
+```
+
+## Layout
+
