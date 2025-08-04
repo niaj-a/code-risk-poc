@@ -51,3 +51,21 @@ flowchart LR
 
 ## Layout
 
+```text
+app/
+  api/routes.py
+  core/config.py, security.py
+  db/models.py, session.py
+  schemas/analysis.py
+  services/github.py, llm.py, mock_analyzer.py, redaction.py
+  workers/celery_app.py, tasks.py
+  main.py
+tests/
+sample_payloads/
+Dockerfile
+docker-compose.yml
+Makefile
+requirements.txt
+.env.example
+```
+
