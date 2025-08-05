@@ -87,3 +87,21 @@ cp .env.example .env
 ```
 
 Without Compose you still need working `DATABASE_URL` and `REDIS_URL` in `.env`.
+
+### Docker
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+Compose loads `.env` for app settings. `DATABASE_URL` / `REDIS_URL` are overridden
+in `docker-compose.yml` so containers talk to the `db` and `redis` services.
+
+| Service | Port |
+|---------|------|
+| API | 8000 |
+| Postgres | 5432 |
+| Redis | 6379 |
+
+```bash
