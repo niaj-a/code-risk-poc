@@ -69,3 +69,21 @@ requirements.txt
 .env.example
 ```
 
+## Setup
+
+Needs Python 3.12+. Docker Compose is the easy path.
+
+```bash
+python -m venv .venv
+
+# Windows
+.\.venv\Scripts\Activate.ps1
+
+# macOS / Linux
+source .venv/bin/activate
+
+pip install -r requirements.txt
+cp .env.example .env
+```
+
+Without Compose you still need working `DATABASE_URL` and `REDIS_URL` in `.env`.
