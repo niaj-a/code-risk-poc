@@ -105,3 +105,20 @@ in `docker-compose.yml` so containers talk to the `db` and `redis` services.
 | Redis | 6379 |
 
 ```bash
+docker compose logs -f api worker
+docker compose down
+```
+
+Makefile: `make up`, `make down`, `make logs`, `make test`, `make verify`, `make config`.
+
+## Quick curl
+
+```bash
+curl -s -X POST http://localhost:8000/api/v1/analyses/manual \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"repository\": \"bank/payments-api\",
+    \"commit_sha\": \"abc123\",
+    \"branch\": \"feature/payment-logging\",
+    \"diff\": \"diff --git a/app/payment.py b/app/payment.py\\n+++ b/app/payment.py\\n+query = f\\\"SELECT * FROM accounts WHERE id = {account_id}\\\"\\n\"
+  }"
