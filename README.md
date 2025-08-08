@@ -122,3 +122,21 @@ curl -s -X POST http://localhost:8000/api/v1/analyses/manual \
     \"branch\": \"feature/payment-logging\",
     \"diff\": \"diff --git a/app/payment.py b/app/payment.py\\n+++ b/app/payment.py\\n+query = f\\\"SELECT * FROM accounts WHERE id = {account_id}\\\"\\n\"
   }"
+```
+
+```bash
+curl -s http://localhost:8000/api/v1/analyses/<analysis_id>
+```
+
+```bash
+curl -s -X POST http://localhost:8000/api/v1/analyses/<analysis_id>/chat \
+  -H "Content-Type: application/json" \
+  -d "{\"question\": \"Could this change expose customer data?\"}"
+```
+
+## GitHub webhook
+
+1. Set `GITHUB_WEBHOOK_SECRET`.
+2. Point the repo webhook at `https://<host>/api/v1/webhooks/github`
+   - content type JSON
+   - same secret
