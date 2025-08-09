@@ -140,3 +140,21 @@ curl -s -X POST http://localhost:8000/api/v1/analyses/<analysis_id>/chat \
 2. Point the repo webhook at `https://<host>/api/v1/webhooks/github`
    - content type JSON
    - same secret
+   - events: pushes + pull requests
+3. Optional: `ALLOWED_REPOSITORIES=org/repo,org/other`
+
+Webhook payloads usually don't include full patches. We store a metadata-only
+summary and don't invent a diff. There's a `DiffFetcher` stub for a future
+read-only GitHub App. No GitHub token needed for this POC.
+
+Samples: [`sample_payloads/push.json`](sample_payloads/push.json),
+[`sample_payloads/pull_request.json`](sample_payloads/pull_request.json).
+
+### Sign a test payload
+
+```python
+import hashlib, hmac, pathlib
+
+secret = b"change-this-secret"
+body = pathlib.Path("sample_payloads/push.json").read_bytes()
+print("sha256=" + hmac.new(secret, body, hashlib.sha256).hexdigest())
