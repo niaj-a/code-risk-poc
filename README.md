@@ -158,3 +158,21 @@ import hashlib, hmac, pathlib
 secret = b"change-this-secret"
 body = pathlib.Path("sample_payloads/push.json").read_bytes()
 print("sha256=" + hmac.new(secret, body, hashlib.sha256).hexdigest())
+```
+
+```bash
+curl -s -X POST http://localhost:8000/api/v1/webhooks/github \
+  -H "Content-Type: application/json" \
+  -H "X-GitHub-Event: push" \
+  -H "X-Hub-Signature-256: $SIGNATURE" \
+  --data-binary @sample_payloads/push.json
+```
+
+Bad/missing sig → 401. Unsupported event → 422.
+
+## LLM providers
+
+```env
+# default — no key needed
+LLM_PROVIDER=mock
+```
