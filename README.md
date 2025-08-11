@@ -176,3 +176,21 @@ Bad/missing sig → 401. Unsupported event → 422.
 # default — no key needed
 LLM_PROVIDER=mock
 ```
+
+```env
+LLM_PROVIDER=openai
+OPENAI_API_KEY=sk-...
+OPENAI_MODEL=gpt-4.1-mini
+```
+
+```env
+LLM_PROVIDER=azure_openai
+AZURE_OPENAI_API_KEY=...
+AZURE_OPENAI_ENDPOINT=https://<resource>.openai.azure.com/
+AZURE_OPENAI_API_VERSION=2024-10-21
+AZURE_OPENAI_DEPLOYMENT=<deployment-name>
+```
+
+Temp is locked to 0. Missing creds for openai/azure fail at settings load.
+
+## API
