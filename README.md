@@ -194,3 +194,20 @@ AZURE_OPENAI_DEPLOYMENT=<deployment-name>
 Temp is locked to 0. Missing creds for openai/azure fail at settings load.
 
 ## API
+
+| Method | Path | Notes |
+|--------|------|-------|
+| GET | `/health` | liveness |
+| POST | `/api/v1/analyses/manual` | queue manual diff → 202 |
+| POST | `/api/v1/webhooks/github` | webhook intake → 202 |
+| GET | `/api/v1/analyses/{id}` | status + report |
+| POST | `/api/v1/analyses/{id}/chat` | chat (completed only) |
+
+Status flow: `queued` → `running` → `completed` | `failed`.
+
+## Tests
+
+In-memory SQLite + Celery eager. No network, no live LLM, no real Postgres/Redis.
+
+```bash
+pip install -r requirements.txt
