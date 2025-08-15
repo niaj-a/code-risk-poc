@@ -211,3 +211,21 @@ In-memory SQLite + Celery eager. No network, no live LLM, no real Postgres/Redis
 
 ```bash
 pip install -r requirements.txt
+pytest -q
+# or
+make verify
+```
+
+`make verify` = pytest + compileall + import smoke. Expect **27 passed**.
+
+Live OpenAI/Azure paths are wired but not covered offline.
+
+## Security notes (POC)
+
+- HMAC SHA-256 on webhooks (constant-time compare)
+- Repo allowlist (empty = allow all, local DX only)
+- Diff truncation via `MAX_DIFF_CHARS`
+- Regex redaction before LLM — not DLP
+- No auto-merge / auto-approve
+- `requires_human_review` always true
+- Non-root container user, Celery late acks + prefetch 1
