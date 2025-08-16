@@ -60,52 +60,6 @@ app/
   services/github.py, llm.py, mock_analyzer.py, redaction.py
   workers/celery_app.py, tasks.py
   main.py
-tests/
-sample_payloads/
-Dockerfile
-docker-compose.yml
-Makefile
-requirements.txt
-.env.example
-```
-
-## Setup
-
-Needs Python 3.12+. Docker Compose is the easy path.
-
-```bash
-python -m venv .venv
-
-# Windows
-.\.venv\Scripts\Activate.ps1
-
-# macOS / Linux
-source .venv/bin/activate
-
-pip install -r requirements.txt
-cp .env.example .env
-```
-
-Without Compose you still need working `DATABASE_URL` and `REDIS_URL` in `.env`.
-
-### Docker
-
-```bash
-cp .env.example .env
-docker compose up --build
-```
-
-Compose loads `.env` for app settings. `DATABASE_URL` / `REDIS_URL` are overridden
-in `docker-compose.yml` so containers talk to the `db` and `redis` services.
-
-| Service | Port |
-|---------|------|
-| API | 8000 |
-| Postgres | 5432 |
-| Redis | 6379 |
-
-```bash
-docker compose logs -f api worker
 docker compose down
 ```
 
